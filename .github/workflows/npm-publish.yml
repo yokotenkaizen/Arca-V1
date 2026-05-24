@@ -1,0 +1,39 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+# 👇 WAJIB DITAMBAHKAN: Memberikan izin ke Actions untuk mengupdate link/branch
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: npm install
+
+      # 👇 Menghasilkan folder kompilasi (otomatis mendeteksi folder dist/build)
+      - name: Build Application
+        run: npm run build --if-present
+
+      # 👇 Langkah deploy yang lebih fleksibel
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: . # Menggunakan titik (.) jika proyekmu adalah HTML/JS biasa tanpa framework (React/Vite)
+          branch: gh-pages
